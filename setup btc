@@ -29,7 +29,7 @@ echo 'keyserver hkp://keyserver.ubuntu.com' | tee -a ~/.gnupg/gpg.conf
 
 sudo apt-get update
 
-# Wladimir J. van der Laan (Bitcoin Core binary release signing key) <laanwj@gmail.com>
+# Wladimir J. van der L. (Bitcoin Core binary release signing key) <laanwj@gmail.com>
 gpg --recv-keys 01EA5486DE18A882D4C2684590C8019E36C2E964 &&
 
 # Thomas Voegtlin (Electrum maintainer) <thomasv@electrum.org>
@@ -120,11 +120,10 @@ proxy=127.0.0.1:9050
 nolisten=1
 # Connect via Tor, comment if you prefer to connect directly
 proxy=127.0.0.1:9050
-# For faster sync, set according to available memory. For example, with 8GB memory, something like dbcache=5000 might make sense. Check total memory with `free -m`.
-# For reduced memory usage, this can be tuned down or removed once the initial sync is complete. The default is 300 (mb).
+# For faster sync, set according to available memory... The default is 300 (mb).
 dbcache=1000
 
-# Optional extended transaction index (takes more space, required for btc-rpc-explorer)
+# Optional extended transaction index (required for btc-rpc-explorer)
 txindex=1
 
 # Reduce storage requirements (won't work with btc-rpc-explorer)
