@@ -189,3 +189,56 @@ bitcoind &
 ./cli/lightning-cli help
 
 
+cd .lightning
+nano config
+
+Default Settings Config file Lightning
+
+# default network is testnet,"bitcoin" means mainnet
+network=bitcoin
+
+# connect via Tor, comment to connect directly
+# might be wise to turn-off during initial sync
+#proxy=127.0.0.1:9050
+
+# Peers won't be able to initiate the opening of new channels with this node (the node will initiate instead). To allow that, a static IP or a Tor hidden service must be configured.
+autolisten=false
+
+# uncomment to set your own (public) alias. By default a random one is chosen.
+# for privacy reasons, it is recommended not to set a custom alias.
+alias=Lancelot
+bitcoin-cli=/root/bitcoin-installation/bitcoin-0.17.1/bin/bitcoin-cli
+bitcoin-rpcuser=rpc user 
+bitcoin-rpcpassword=passwd of btc rpc
+bitcoin-rpcconnect=127.0.0.1
+#bitcoin-rpcport=28332
+#zmqpubrawblock=tcp://127.0.0.1:28332
+#zmqpubrawtx=tcp://127.0.0.1:28333
+fee-base=1000
+fee-per-satoshi=10
+min-capacity-sat=10000
+addr=0.0.0.0
+
+
+alias=LIGHTNING-Node
+rgb=DDFF06
+addr=:0.0.0.0
+log-level=debug
+network=bitcoin
+bitcoin-cli=/here your path/bitcoin-installation/bitcoin/bin/bitcoin-cli
+bitcoin-datadir=/root/.bitcoin
+#log-prefix=raspi-lightning
+ignore-fee-limits=true
+fee-base=10
+#bitcoin-rpcuser=user
+#bitcoin-rpcpassword=userpass
+#bitcoin-rpcconnect=127.0.0.1
+bitcoin-rpcport=28332
+
+
+then start bitcoind when syncronized -->>> then wait for bitcoin-cli has started in full
+
+----->>> then start lightningd and wait for synchronizing in full
+
+
+
