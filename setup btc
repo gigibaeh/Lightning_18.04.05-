@@ -1,0 +1,192 @@
+#  list of updates & upgrade 
+sudo apt update &&
+sudo apt upgrade -y &&
+sudo apt autoremove -y
+
+
+# Setup firewall
+sudo ufw enable &&
+sudo ufw allow from 127.0.0.1 to any &&
+
+# Secure shared memory
+echo "tmpfs /run/shm tmpfs defaults,noexec,nosuid 0 0" | sudo tee -a /etc/fstab
+
+
+sudo gedit /etc/sysctl.conf
+[sudo nano /etc/sysctl.conf]
+
+sudo apt install -y nodejs npm git &&
+
+# Install global npm packages to ~/.npm-global 
+mkdir ~/.npm-global && npm config set prefix '~/.npm-global' &&
+echo 'export PATH=~/.npm-global/bin:$PATH' | tee -a ~/.profile ~/.bashrc && source ~/.profile
+
+echo 'keyserver hkp://keyserver.ubuntu.com' | tee -a ~/.gnupg/gpg.conf
+
+sudo apt-get install dirmngr
+
+echo 'keyserver hkp://keyserver.ubuntu.com' | tee -a ~/.gnupg/gpg.conf
+
+sudo apt-get update
+
+# Wladimir J. van der Laan (Bitcoin Core binary release signing key) <laanwj@gmail.com>
+gpg --recv-keys 01EA5486DE18A882D4C2684590C8019E36C2E964 &&
+
+# Thomas Voegtlin (Electrum maintainer) <thomasv@electrum.org>
+gpg --recv-keys 6694D8DE7BE8EE5631BED9502BD5824B7F9470E6 &&
+
+# Rusty Russell (Bitcoin Core contributor and c-lightning maintainer) <rusty@rustcorp.com.au>
+gpg --recv-keys 15EE8D6CAB0E7F0CF999BFCBD9200E6CD1ADB8F1 &&
+
+# Chris Belcher (Electrum Personal Server and JoinMarket maintainer) <false@email.com>
+gpg --recv-keys 0A8B038F5E10CC2789BFCFFFEF734EA677F31129 &&
+
+# Nadav Ivgi (Spark, Lightning Charge, Esplora) <nadav@shesek.info>
+gpg --recv-keys FCF19B67866562F08A43AAD681F6104CD0F150FC &&
+
+# Dan Janosik (btc-rpc-explorer maintainer) <dan@47.io>
+gpg --recv-keys F579929B39B119CC7B0BB71FB326ACF51F317B69
+
+
+
+
+Tor
+
+To install Tor as a system service:
+
+sudo apt install -y tor
+
+Tor will automatically start running as a background service.
+
+To install the Tor Browser Bundle:
+
+sudo apt install -y torbrowser-launcher &&
+
+# Fix for https://bugs.python.org/issue20087, necessary for torbrowser-launcher < 0.3
+sudo update-locale LANG=en_US.UTF-8 && source /etc/default/locale
+
+You can start the tor browser with torbrowser-launcher from the command line, or using the launcher (due to the locale bug, this only works after a logout & login)
+
+
+
+Bitcoin Core
+Installing
+
+# Create dir for installation files
+mkdir -p ~/bitcoin-installation && cd ~/bitcoin-installation && rm -rf * &&
+
+# Download binaries
+wget https://bitcoincore.org/bin/bitcoin-core-0.17.1/bitcoin-0.17.1-x86_64-linux-gnu.tar.gz &&
+
+# Download signature
+wget https://bitcoincore.org/bin/bitcoin-core-0.17.1/SHA256SUMS.asc &&
+
+# Verify signature - should see "Good signature from Wladimir J. van der Laan (Bitcoin Core binary release signing key) <laanwj@gmail.com>"
+gpg --verify SHA256SUMS.asc &&
+
+# Verify the binary matches the signed hash in SHA256SUMS.asc - should see "bitcoin-0.17.1-x86_64-linux-gnu.tar.gz: OK"
+grep bitcoin-0.17.1-x86_64-linux-gnu.tar.gz SHA256SUMS.asc | sha256sum -c - &&
+
+# Unpack binaries
+tar xvf bitcoin-0.17.1-x86_64-linux-gnu.tar.gz &&
+
+# Install binaries system-wide (requires password)
+sudo cp bitcoin-0.17.1/bin/* /usr/bin
+
+
+Configuring
+
+Create and edit bitcoin.conf
+
+mkdir -p ~/.bitcoin &&
+nano ~/.bitcoin/bitcoin.conf
+
+server=1
+txindex=1
+daemon=1
+externalip=xxx.xxx.xxx.xxx
+maxconnections=10
+rpcuser=max
+rpcpassword=moritz
+minrelaytxfee=0.0000001
+incrementalrelayfee=0.00000010
+#zmqpubrawblock=tcp://127.0.0.1:28332
+#zmqpubrawtx=tcp://127.0.0.1:28333
+
+-------- for Tor
+# Connect via Tor, comment if you prefer to connect directly
+proxy=127.0.0.1:9050
+# No incoming connections (requires port forwarding or an hidden service)
+nolisten=1
+# Connect via Tor, comment if you prefer to connect directly
+proxy=127.0.0.1:9050
+# For faster sync, set according to available memory. For example, with 8GB memory, something like dbcache=5000 might make sense. Check total memory with `free -m`.
+# For reduced memory usage, this can be tuned down or removed once the initial sync is complete. The default is 300 (mb).
+dbcache=1000
+
+# Optional extended transaction index (takes more space, required for btc-rpc-explorer)
+txindex=1
+
+# Reduce storage requirements (won't work with btc-rpc-explorer)
+# prune=50000 # ~6 months, 50GB
+
+# Reduce bandwidth requirements (node won't show unconfirmed transactions)
+# blocksonly=1
+----------
+
+or use the Generator fpr BTC conf : https://jlopp.github.io/bitcoin-core-config-generator/
+
+
+
+
+Running the core
+
+bitcoind
+
+To test bitcoind is running:
+
+bitcoin-cli getblockchaininfo
+
+
+------->>>>>>>>>   BTC Setup finished - synchronisation start BC
+
+
+Lightning Setup
+
+sudo apt-get update
+sudo apt-get install -y \
+  autoconf automake build-essential git libtool libgmp-dev \
+  libsqlite3-dev python3 python3-mako net-tools zlib1g-dev libsodium-dev \
+  gettext
+  
+  
+  
+  sudo apt-get install snapd
+sudo snap install bitcoin-core
+# Snap does some weird things with binary names; you'll
+# want to add a link to them so everything works as expected
+sudo ln -s /snap/bitcoin-core/current/bin/bitcoin{d,-cli} /usr/local/bin/
+
+Clone lightning:
+
+git clone https://github.com/ElementsProject/lightning.git
+cd lightning
+
+For development or running tests, get additional dependencies:
+
+sudo apt-get install -y valgrind python3-pip libpq-dev
+sudo pip3 install -r requirements.txt
+
+Build lightning:
+
+./configure
+make
+sudo make install
+
+Running lightning:
+
+bitcoind &
+./lightningd/lightningd &
+./cli/lightning-cli help
+
+
